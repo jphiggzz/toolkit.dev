@@ -26,6 +26,7 @@ import { cn, sanitizeText } from "@/lib/utils";
 import type { UIMessage } from "ai";
 
 import { MessageTool } from "./message-tool";
+import { ArtifactToolInvocation } from "./artifact-tool-invocation";
 import { AnimatedShinyText } from "@/components/magicui/animated-shiny-text";
 
 interface Props {
@@ -106,6 +107,21 @@ const PurePreviewMessage: React.FC<Props> = ({
 
               if (type === "tool-invocation") {
                 const { toolInvocation } = part;
+
+                // Handle artifact tools separately
+                const artifactToolNames = ['createDocument', 'createCode', 'createChart', 'createDiagram'];
+                if (artifactToolNames.includes(toolInvocation.toolName)) {
+                  return (
+                    <ArtifactToolInvocation
+                      key={key}
+                      toolCallId={toolInvocation.toolCallId}
+                      toolName={toolInvocation.toolName}
+                      args={toolInvocation.args}
+                      result={toolInvocation.state === 'result' ? toolInvocation : undefined}
+                      state={toolInvocation.state}
+                    />
+                  );
+                }
 
                 return (
                   <MessageTool key={key} toolInvocation={toolInvocation} />

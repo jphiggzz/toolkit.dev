@@ -21,12 +21,12 @@ model Account {
     type                     String
     provider                 String
     providerAccountId        String
-    refresh_token            String? @db.Text
-    access_token             String? @db.Text
+    refresh_token            String?  @db.Text
+    access_token             String?  @db.Text
     expires_at               Int?
     token_type               String?
     scope                    String?
-    id_token                 String? @db.Text
+    id_token                 String?  @db.Text
     session_state            String?
     user                     User    @relation(fields: [userId], references: [id], onDelete: Cascade)
     refresh_token_expires_in Int?
@@ -91,6 +91,7 @@ model Chat {
     messages     Message[]
     stream       Stream[]
     workbench    Workbench? @relation(fields: [workbenchId], references: [id], onDelete: SetNull)
+    artifacts    Artifact[] // Artifacts generated in this chat
 }
 
 model Message {
@@ -98,10 +99,11 @@ model Message {
     chatId      String
     role        String
     parts       Json
-    attachments Json[]
+    attachments Json[]       // Array of attachment objects
     modelId     String      @default("openai:gpt-4o") // For tracking which model generated the message
     createdAt   DateTime     @default(now())
     chat        Chat         @relation(fields: [chatId], references: [id], onDelete: Cascade)
+    artifacts   Artifact[]   // Messages can generate multiple artifacts
 }
 
 model File {
@@ -180,4 +182,30 @@ model Tool {
     toolkit     Toolkit  @relation(fields: [toolkitId], references: [id], onDelete: Cascade)
 
     @@id([id, toolkitId])
+}
+
+enum ArtifactType {
+    document
+    code
+    image
+    sheet
+    chart
+    diagram
+}
+
+model Artifact {
+    id          String       @id @default(uuid())
+    chatId      String
+    messageId   String?      // Optional link to specific message that created this artifact
+    type        ArtifactType
+    title       String
+    content     String
+    metadata    Json?        // Store additional type-specific metadata
+    createdAt   DateTime     @default(now())
+    updatedAt   DateTime     @updatedAt
+    chat        Chat         @relation(fields: [chatId], references: [id], onDelete: Cascade)
+    message     Message?     @relation(fields: [messageId], references: [id], onDelete: SetNull)
+
+    @@index([chatId])
+    @@index([messageId])
 }

@@ -16,6 +16,7 @@ import {
   toolkitsRouter,
   toolsRouter,
   creditsRouter,
+  artifactsRouter,
 } from "./routers";
 import { IS_DEVELOPMENT } from "@/lib/constants";
 
@@ -37,6 +38,7 @@ export const appRouter = createTRPCRouter({
   workbenches: workbenchesRouter,
   toolkits: toolkitsRouter,
   tools: toolsRouter,
+  artifacts: artifactsRouter,
   ...(IS_DEVELOPMENT ? { credits: creditsRouter } : {}),
 });
 

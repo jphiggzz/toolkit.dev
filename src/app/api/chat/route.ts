@@ -23,6 +23,7 @@ import { generateText, streamText } from "@/ai/language/generate";
 import { generateUUID } from "@/lib/utils";
 
 import { ChatSDKError } from "@/lib/errors";
+import { artifactTools } from "@/ai/tools/artifacts";
 
 import type { ResumableStreamContext } from "resumable-stream";
 import type {
@@ -221,27 +222,79 @@ export async function POST(request: Request) {
       }),
     );
 
-    const tools = toolkitTools.reduce(
-      (acc, toolkitTools) => {
-        return {
-          ...acc,
-          ...toolkitTools,
-        };
-      },
-      {} as Record<string, Tool>,
+    // Create artifact tools with database persistence
+    const artifactToolsWithPersistence = Object.fromEntries(
+      Object.entries(artifactTools).map(([key, originalTool]) => [
+        key,
+        tool({
+          description: originalTool.description,
+          parameters: originalTool.parameters,
+          execute: async (args, options) => {
+            // @ts-ignore - Type issue with AI SDK tool execution
+            const result = await originalTool.execute(args, options);
+            
+            // Create artifact in database
+            try {
+              const serverCaller = await createServerOnlyCaller();
+              const artifact = await serverCaller.artifacts.create({
+                chatId: id,
+                messageId: undefined, // Will be set after message is created
+                type: result.type,
+                title: result.title,
+                content: result.content,
+                metadata: result.metadata,
+              });
+              
+              return {
+                ...result,
+                artifactId: artifact.id,
+              };
+            } catch (error) {
+              console.error('Failed to create artifact:', error);
+              return result;
+            }
+          },
+        }),
+      ])
     );
+
+    const tools = {
+      ...toolkitTools.reduce(
+        (acc, toolkitTools) => {
+          return {
+            ...acc,
+            ...toolkitTools,
+          };
+        },
+        {} as Record<string, Tool>,
+      ),
+      ...artifactToolsWithPersistence,
+    };
 
     const isOpenAi = selectedChatModel.startsWith("openai");
 
     // Build comprehensive system prompt
     const baseSystemPrompt = `You are a helpful assistant. The current date and time is ${new Date().toLocaleString()}. Whenever you are asked to write code, you must include a language with \`\`\``;
 
+    const artifactInstructions = `\n\n## Artifacts\n\nYou have access to artifact creation tools that allow you to create rich, interactive content that will be displayed in a split-view interface alongside our conversation. Use these tools when users request substantial content like:
+
+- **Documents/Essays**: Use \`createDocument\` for written content, articles, essays, reports, or any substantial text. The content should be in markdown format.
+- **Code**: Use \`createCode\` for code examples, scripts, or programming solutions. Include proper syntax highlighting and metadata.
+- **Charts**: Use \`createChart\` for data visualizations and charts (implementation pending).
+- **Diagrams**: Use \`createDiagram\` for flowcharts, sequence diagrams, or other visual diagrams using Mermaid syntax.
+
+When creating artifacts:
+1. Choose descriptive, clear titles
+2. Ensure content is substantial and self-contained
+3. Use appropriate metadata to enhance the viewing experience
+4. The artifact will open automatically in a split-view for the user to see alongside our conversation`;
+
     const toolkitInstructions =
       toolkitSystemPrompts.length > 0
         ? `\n\n## Available Toolkits\n\nYou have access to the following toolkits and their capabilities:\n\n${toolkitSystemPrompts.join("\n\n---\n\n")}\n\n${systemPrompt ?? ""}`
         : "";
 
-    const fullSystemPrompt = baseSystemPrompt + toolkitInstructions;
+    const fullSystemPrompt = baseSystemPrompt + artifactInstructions + toolkitInstructions;
 
     const stream = createDataStream({
       execute: (dataStream) => {
