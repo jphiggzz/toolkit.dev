@@ -104,7 +104,7 @@ export const Chat = async ({
   };
 
   return (
-    <ChatLayout>
+    <ChatLayout chatId={id}>
       <ChatProvider
         id={id}
         initialMessages={convertToUIMessages(initialMessages)}
