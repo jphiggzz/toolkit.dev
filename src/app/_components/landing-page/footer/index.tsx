@@ -13,12 +13,12 @@ export const Footer = () => {
         <HStack>
           <Logo className="size-6" />
           <h1 className="text-primary overflow-hidden text-lg font-bold whitespace-nowrap">
-            Toolkit.dev
+            Dental.AI
           </h1>
         </HStack>
         <HStack>
           <Link
-            href="https://github.com/jasonhedman/toolkit.dev"
+                          href="https://github.com/jasonhedman/dental-ai"
             target="_blank"
           >
             <Button variant="ghost">

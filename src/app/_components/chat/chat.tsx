@@ -9,9 +9,13 @@ import { useScrollToBottom } from "@/app/_hooks/use-scroll-to-bottom";
 import { useChatContext } from "@/app/_contexts/chat-context";
 
 import { Logo } from "@/components/ui/logo";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useSearchParams } from "next/navigation";
 import { WelcomeDialog } from "../welcome-dialog";
-import { Anvil } from "lucide-react";
+import { PatientSidebar } from "./patient-sidebar";
+import { EB_PATIENT, ENABLE_DEMO_SCENARIOS } from "./mock/eb-patient";
+import { Anvil, CalendarIcon } from "lucide-react";
 
 export const ChatContent = ({
   id,
@@ -34,7 +38,7 @@ export const ChatContent = ({
     onViewportLeave,
   } = useScrollToBottom();
 
-  const { messages, workbench } = useChatContext();
+  const { messages, workbench, patientSidebarOpen, setPatientSidebarOpen, startEbAppointmentSimulation } = useChatContext();
   const hasMessages = messages.length > 0;
 
   return (
@@ -104,8 +108,44 @@ export const ChatContent = ({
                 >
                   {workbench
                     ? `${workbench.name} Workbench`
-                    : "Welcome to Toolkit.dev"}
+                    : "Welcome to Dental.AI"}
                 </motion.h1>
+                
+                {/* EB Appointment Card - only show for non-workbench and when demo enabled */}
+                {!workbench && ENABLE_DEMO_SCENARIOS && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ delay: 0.4, duration: 0.3 }}
+                    className="mt-6 w-full max-w-sm"
+                  >
+                    <Card className="cursor-pointer transition-all duration-200 hover:shadow-md hover:scale-[1.02] border-primary/20 hover:border-primary/40">
+                      <CardHeader className="pb-3">
+                        <div className="flex items-center gap-3">
+                          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
+                            <CalendarIcon className="h-5 w-5 text-primary" />
+                          </div>
+                          <div>
+                            <CardTitle className="text-base">EB Appointment</CardTitle>
+                            <CardDescription className="text-sm">
+                              Start a simulated dental appointment
+                            </CardDescription>
+                          </div>
+                        </div>
+                      </CardHeader>
+                      <CardContent className="pt-0">
+                        <Button
+                          onClick={startEbAppointmentSimulation}
+                          className="w-full"
+                          size="sm"
+                        >
+                          Start Appointment
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+                )}
               </motion.div>
             )}
           </AnimatePresence>
@@ -142,6 +182,14 @@ export const ChatContent = ({
           </AnimatePresence>
         </motion.div>
       </div>
+
+      {/* Patient Sidebar */}
+      <PatientSidebar
+        patient={EB_PATIENT}
+        open={patientSidebarOpen}
+        onOpenChange={setPatientSidebarOpen}
+      />
+
       {welcome && <WelcomeDialog />}
     </>
   );

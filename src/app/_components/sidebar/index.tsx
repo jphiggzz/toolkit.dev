@@ -48,7 +48,7 @@ export async function AppSidebar({
             <HStack className="items-center group-data-[collapsible=icon]:justify-center">
               <Logo className="size-6 group-data-[collapsible=icon]:mx-auto" />
               <h1 className="shimmer-text overflow-hidden text-xl font-bold whitespace-nowrap group-data-[collapsible=icon]:hidden">
-                Toolkit.dev
+                Dental.AI
               </h1>
             </HStack>
           </Link>
@@ -64,26 +64,7 @@ export async function AppSidebar({
           <div className="group-data-[collapsible=icon]:hidden">
             <InstallPrompt />
           </div>
-          <SidebarMenuButton
-            asChild
-            className="hover:bg-sidebar-accent/50 h-fit w-full rounded-lg p-2 transition-colors group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:p-2"
-          >
-            <Link
-              href="https://github.com/jasonhedman/toolkit.dev"
-              target="_blank"
-              className="flex items-center gap-3 px-3 transition-all group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:gap-0"
-            >
-              <SiGithub className="text-sidebar-accent-foreground !size-6 group-data-[collapsible=icon]:mx-auto" />
-              <VStack className="items-start gap-0 overflow-hidden transition-all group-data-[collapsible=icon]:w-0">
-                <h3 className="shimmer-text text-sidebar-foreground truncate font-medium">
-                  Contribute
-                </h3>
-                <p className="text-sidebar-muted-foreground truncate text-xs">
-                  Join the toolkit developers!
-                </p>
-              </VStack>
-            </Link>
-          </SidebarMenuButton>
+          
           <NavUser
             user={{
               name: session.user.name ?? "User",

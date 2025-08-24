@@ -20,6 +20,7 @@ import { MessageActions } from "./message-actions";
 import { PreviewAttachment } from "../preview-attachment";
 import { MessageEditor } from "./message-editor";
 import { MessageReasoning } from "./message-reasoning";
+import { DentalSummaryCards, isDentalSimulationMessage } from "./dental-summary-cards";
 
 import { cn, sanitizeText } from "@/lib/utils";
 
@@ -141,7 +142,11 @@ const PurePreviewMessage: React.FC<Props> = ({
                             message.role === "user",
                         })}
                       >
-                        <Markdown>{sanitizeText(part.text)}</Markdown>
+                        {message.role === "assistant" && isDentalSimulationMessage(part.text) ? (
+                          <DentalSummaryCards content={sanitizeText(part.text)} />
+                        ) : (
+                          <Markdown>{sanitizeText(part.text)}</Markdown>
+                        )}
                       </div>
                     </div>
                   );

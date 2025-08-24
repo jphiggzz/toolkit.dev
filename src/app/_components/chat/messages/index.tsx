@@ -2,9 +2,11 @@ import { memo, useEffect, useState } from "react";
 import { motion } from "motion/react";
 import equal from "fast-deep-equal";
 import { PreviewMessage, ThinkingMessage } from "./message";
+import { SimulatedToolRun } from "./simulated-tool-run";
 import { useMessages } from "@/app/_hooks/use-messages";
 import { useChatContext } from "@/app/_contexts/chat-context";
 import { cn } from "@/lib/utils";
+import { SIMULATION_STEPS } from "../mock/eb-patient";
 
 interface Props {
   chatId: string;
@@ -25,7 +27,7 @@ const PureMessages: React.FC<Props> = ({
   onViewportLeave,
   scrollToBottom,
 }) => {
-  const { messages, status, streamStopped } = useChatContext();
+  const { messages, status, streamStopped, simulationStep } = useChatContext();
 
   const { hasSentMessage } = useMessages({
     chatId,
@@ -55,25 +57,52 @@ const PureMessages: React.FC<Props> = ({
     >
       {messages
         .filter(
-          (message) =>
-            !(
+          (message) => {
+            // Don't filter out simulation messages
+            const hasSimulationTool = message.toolInvocations?.some(
+              (invocation) => invocation.toolName === "simulated-patient-lookup"
+            );
+            if (hasSimulationTool) return true;
+
+            // Filter out other empty messages
+            return !(
               message.parts.length === 0 ||
               (message.parts?.length === 1 &&
                 message.parts[0]?.type === "step-start")
-            ),
+            );
+          },
         )
-        .map((message, index) => (
-          <PreviewMessage
-            key={message.id}
-            message={message}
-            isLoading={status === "streaming" && messages.length - 1 === index}
-            isReadonly={isReadonly}
-            requiresScrollPadding={
-              hasSentMessage && index === messages.length - 1
-            }
-            chatId={chatId}
-          />
-        ))}
+        .map((message, index) => {
+          // Check if this is a simulation message
+          const hasSimulationTool = message.toolInvocations?.some(
+            (invocation) => invocation.toolName === "simulated-patient-lookup"
+          );
+
+          if (hasSimulationTool) {
+            return (
+              <SimulatedToolRun
+                key={message.id}
+                currentStepIndex={simulationStep >= 0 ? simulationStep : SIMULATION_STEPS.length}
+                onComplete={() => {
+                  // This will be handled by the chat context
+                }}
+              />
+            );
+          }
+
+          return (
+            <PreviewMessage
+              key={message.id}
+              message={message}
+              isLoading={status === "streaming" && messages.length - 1 === index}
+              isReadonly={isReadonly}
+              requiresScrollPadding={
+                hasSentMessage && index === messages.length - 1
+              }
+              chatId={chatId}
+            />
+          );
+        })}
 
       {!streamStopped &&
         ((status === "submitted" &&

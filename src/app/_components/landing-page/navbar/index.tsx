@@ -13,7 +13,7 @@ export const Navbar = () => {
         <HStack>
           <Logo className="size-6" />
           <h1 className="shimmer-text overflow-hidden text-lg font-bold whitespace-nowrap">
-            Toolkit.dev
+            Dental.AI
           </h1>
         </HStack>
         <HStack>

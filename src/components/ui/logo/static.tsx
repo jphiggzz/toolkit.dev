@@ -13,14 +13,14 @@ export const Logo: React.FC<Props> = ({ className }) => {
     <>
       <Image
         src="/logo/light.svg"
-        alt="Toolkit.dev"
+        alt="Dental.AI"
         width={100}
         height={100}
         className={cn(className, "dark:hidden")}
       />
       <Image
         src="/logo/dark.svg"
-        alt="Toolkit.dev"
+        alt="Dental.AI"
         width={100}
         height={100}
         className={cn(className, "hidden dark:block")}

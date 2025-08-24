@@ -37,14 +37,14 @@ export const MeritSection: React.FC = () => {
         badgeText="How Payouts Work"
         buttons={[
           <Link
-            href="https://terminal.merit.systems/jasonhedman/toolkit.dev"
+            href="https://terminal.merit.systems/jasonhedman/dental-ai"
             key="terminal"
             target="_blank"
           >
             <Button className="user-message">Explore Merit Systems</Button>
           </Link>,
           <Link
-            href="https://github.com/jasonhedman/toolkit.dev/issues?q=is%3Aissue%20state%3Aopen%20label%3A%22good%20first%20issue%22"
+            href="https://github.com/jasonhedman/dental-ai/issues?q=is%3Aissue%20state%3Aopen%20label%3A%22good%20first%20issue%22"
             key="github"
             target="_blank"
           >

@@ -27,7 +27,7 @@ export const HeroSection: React.FC = () => {
             </Badge>
             <VStack className="gap-1">
               <h1 className="text-primary overflow-hidden text-5xl font-bold whitespace-nowrap md:text-6xl">
-                Toolkit.dev
+                Dental.AI
               </h1>
               <h2 className="text-xl font-semibold md:text-2xl">
                 Get Paid to Build LLM Tools
@@ -57,7 +57,7 @@ export const HeroSection: React.FC = () => {
               </AuthModal>
             </div>
             <Link
-              href="https://github.com/jasonhedman/toolkit.dev"
+              href="https://github.com/jasonhedman/dental-ai"
               target="_blank"
               className="flex-1 shrink-0"
             >

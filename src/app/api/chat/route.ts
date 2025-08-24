@@ -238,10 +238,13 @@ export async function POST(request: Request) {
 
     const toolkitInstructions =
       toolkitSystemPrompts.length > 0
-        ? `\n\n## Available Toolkits\n\nYou have access to the following toolkits and their capabilities:\n\n${toolkitSystemPrompts.join("\n\n---\n\n")}\n\n${systemPrompt ?? ""}`
+        ? `\n\n## Available Toolkits\n\nYou have access to the following toolkits and their capabilities:\n\n${toolkitSystemPrompts.join("\n\n---\n\n")}`
         : "";
 
-    const fullSystemPrompt = baseSystemPrompt + toolkitInstructions;
+    // Always include the system prompt from the request (which may contain patient context)
+    const additionalSystemPrompt = systemPrompt ? `\n\n${systemPrompt}` : "";
+
+    const fullSystemPrompt = baseSystemPrompt + toolkitInstructions + additionalSystemPrompt;
 
     const stream = createDataStream({
       execute: (dataStream) => {

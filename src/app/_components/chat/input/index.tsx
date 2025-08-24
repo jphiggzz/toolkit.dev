@@ -39,6 +39,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { PatientContextIndicator } from "../patient-context-indicator";
 
 interface Props {
   chatId: string;
@@ -63,6 +64,8 @@ const PureMultimodalInput: React.FC<Props> = ({
     handleSubmit,
     selectedChatModel,
     workbench,
+    patientContext,
+    clearPatientContext,
   } = useChatContext();
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -375,6 +378,16 @@ const PureMultimodalInput: React.FC<Props> = ({
         tabIndex={-1}
         disabled={!selectedChatModel || acceptedFileTypes.length === 0}
       />
+
+      {/* Patient Context Indicator */}
+      {patientContext && (
+        <div className="mb-2">
+          <PatientContextIndicator
+            patient={patientContext}
+            onClear={clearPatientContext}
+          />
+        </div>
+      )}
 
       {(attachments.length > 0 || uploadQueue.length > 0) && (
         <div

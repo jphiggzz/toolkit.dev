@@ -21,14 +21,30 @@ import type { Metadata, Viewport } from "next";
 import "@/styles/globals.css";
 
 export const metadata: Metadata = {
-  title: "Toolkit.dev",
-  description: "The Playground for LLM Tool Developers",
+  title: "Dental.AI",
+  description: "AI-powered dental analysis and workflow automation",
   appleWebApp: {
-    title: "Toolkit.dev",
+    title: "Dental.AI",
     statusBarStyle: "black",
   },
   manifest: "/manifest.json",
   metadataBase: new URL(env.NEXTAUTH_URL || "http://localhost:3000"),
+  openGraph: {
+    title: "Dental.AI",
+    description: "AI-powered dental analysis and workflow automation",
+    url: "https://dental.ai",
+    siteName: "Dental.AI",
+    images: [
+      {
+        url: "https://dental.ai/og.png",
+        width: 1200,
+        height: 630,
+        alt: "Dental.AI",
+      },
+    ],
+    locale: "en_US",
+    type: "website",
+  },
 };
 
 export const viewport: Viewport = {

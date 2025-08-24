@@ -42,7 +42,7 @@ export const ContributorsSection = async () => {
   const contributors = await octo.rest.repos
     .listContributors({
       owner: "jasonhedman",
-      repo: "toolkit.dev",
+      repo: "dental-ai",
     })
     .then((res) => res.data)
     .catch(() => null);

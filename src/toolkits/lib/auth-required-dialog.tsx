@@ -51,7 +51,7 @@ export const AuthRequiredDialog: React.FC<Props> = ({
         {content && (
           <DialogFooter className="justify-center md:justify-center">
             <p className="text-muted-foreground max-w-xs text-center text-xs">
-              Your configuration will be saved securely by Toolkit and can be
+              Your configuration will be saved securely by Dental.AI and can be
               deleted at any time.
             </p>
           </DialogFooter>

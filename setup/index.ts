@@ -11,9 +11,9 @@ import {
 
 // Main setup function
 async function main(): Promise<void> {
-  log("🚀 Toolkit.dev Setup Script", "bright");
+  log("🚀 Dental.AI Setup Script", "bright");
   log(
-    "This script will help you set up the Toolkit.dev project for development.\n",
+          "This script will help you set up the Dental.AI project for development.\n",
     "cyan",
   );
 

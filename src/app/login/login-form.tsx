@@ -30,7 +30,7 @@ export function LoginForm({
           <Logo className="size-16" />
           <VStack className="gap-1">
             <h1 className="text-primary text-2xl font-bold">
-              Welcome to Toolkit
+              Welcome to Dental.AI
             </h1>
           </VStack>
         </VStack>

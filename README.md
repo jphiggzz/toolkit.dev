@@ -1,14 +1,14 @@
 ![Banner Image](/banner.png)
 
-# [Toolkit.dev](https://toolkit.dev)
+# [Dental.AI](https://dental.ai)
 
 The chatbot that **pays every merged PR**. Join us in building a **self-funding repository** for the usage-based economy.
 
 ## Contributing
 
-All contributors are welcome to join the Toolkit community! See our list of [good first issues](https://github.com/jasonhedman/toolkit.dev/issues?q=is%3Aissue%20state%3Aopen%20label%3A%22good%20first%20issue%22) to find a starting point.
+All contributors are welcome to join the Dental.AI community! See our list of [good first issues](https://github.com/jasonhedman/dental-ai/issues?q=is%3Aissue%20state%3Aopen%20label%3A%22good%20first%20issue%22) to find a starting point.
 
-Every merged PR will get paid on [Merit Systems](https://terminal.merit.systems/jasonhedman/toolkit.dev). For more information on how payouts work, see [this section of the landing page](https://www.toolkit.dev/#Merit).
+Every merged PR will get paid on [Merit Systems](https://terminal.merit.systems/jasonhedman/dental-ai). For more information on how payouts work, see [this section of the landing page](https://www.dental.ai/#Merit).
 
 We also have a [Discord Community](https://discord.gg/cnNBsSfY) to discuss all things Toolkit!
 
@@ -49,9 +49,8 @@ If you prefer to set up manually:
 #### 1) Clone the Repository
 
 ```bash
-git clone https://github.com/jasonhedman/toolkit.dev.git
-cd toolkit.dev
-```
+git clone https://github.com/jasonhedman/dental-ai.git
+cd dental-ai
 
 #### 2) Run the Development Script
 
@@ -150,7 +149,7 @@ src/
 
 ### Adding New Toolkits
 
-Toolkit.dev's modular architecture makes it easy to add new toolkits. Check out the [Toolkit Development Guide](./src/toolkits/README.md) for detailed instructions.
+Dental.AI's modular architecture makes it easy to add new toolkits. Check out the [Toolkit Development Guide](./src/toolkits/README.md) for detailed instructions.
 
 ### Database Commands
 

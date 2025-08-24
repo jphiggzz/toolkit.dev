@@ -6,6 +6,7 @@ import {
   useEffect,
   useState,
   useCallback,
+  useRef,
 } from "react";
 
 import { useChat } from "@ai-sdk/react";
@@ -29,6 +30,10 @@ import { generateUUID } from "@/lib/utils";
 import { fetchWithErrorHandlers } from "@/lib/fetch";
 import { ChatSDKError } from "@/lib/errors";
 import { IS_DEVELOPMENT } from "@/lib/constants";
+import { format, differenceInYears } from "date-fns";
+import { EB_PATIENT, SIMULATION_STEPS, ENABLE_DEMO_SCENARIOS } from "@/app/_components/chat/mock/eb-patient";
+import type { MockPatient } from "@/app/_components/chat/mock/eb-patient";
+import { formatPatientContextForAI } from "@/app/_components/chat/utils/patient-context-formatter";
 
 import type { ReactNode } from "react";
 import type { Attachment, UIMessage } from "ai";
@@ -71,11 +76,21 @@ interface ChatContextType {
 
   workbench?: Workbench;
 
+  // Simulation state
+  simulationStep: number;
+  patientSidebarOpen: boolean;
+  setPatientSidebarOpen: (open: boolean) => void;
+  patientContext: MockPatient | null;
+
   // Chat actions
   handleSubmit: UseChatHelpers["handleSubmit"];
   stop: () => void;
   reload: UseChatHelpers["reload"];
   append: UseChatHelpers["append"];
+
+  // Simulation actions
+  startEbAppointmentSimulation: () => void;
+  clearPatientContext: () => void;
 }
 
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
@@ -178,6 +193,18 @@ export function ChatProvider({
   const [hasInvalidated, setHasInvalidated] = useState(false);
   const [streamStopped, setStreamStopped] = useState(false);
 
+  // Simulation state
+  const [simulationStep, setSimulationStep] = useState(-1); // -1 = not running, 0+ = current step
+  const [patientSidebarOpen, setPatientSidebarOpen] = useState(false);
+  const [patientContext, setPatientContext] = useState<MockPatient | null>(null);
+  
+  // Use ref to ensure latest patient context is available in useChat closure
+  const patientContextRef = useRef<MockPatient | null>(null);
+  
+  useEffect(() => {
+    patientContextRef.current = patientContext;
+  }, [patientContext]);
+
   // Wrapper functions that also save to cookies
   const setSelectedChatModel = (model: LanguageModel) => {
     setSelectedChatModelState(model);
@@ -226,26 +253,36 @@ export function ChatProvider({
     sendExtraMessageFields: true,
     generateId: generateUUID,
     fetch: fetchWithErrorHandlers,
-    experimental_prepareRequestBody: (body) => ({
-      id,
-      message: body.messages.at(-1),
-      selectedChatModel: `${selectedChatModel?.provider}/${selectedChatModel?.modelId}`,
-      imageGenerationModel: imageGenerationModel
-        ? `${imageGenerationModel.provider}:${imageGenerationModel.modelId}`
-        : undefined,
-      selectedVisibilityType: initialVisibilityType,
-      useNativeSearch,
-      systemPrompt: workbench?.systemPrompt,
-      toolkits: selectedChatModel?.capabilities?.includes(
-        LanguageModelCapability.ToolCalling,
-      )
-        ? toolkits.map((t) => ({
-            id: t.id,
-            parameters: t.parameters,
-          }))
-        : [],
-      workbenchId: workbench?.id,
-    }),
+    experimental_prepareRequestBody: (body) => {
+      // Build system prompt with patient context if available
+      let systemPrompt = workbench?.systemPrompt || "";
+      
+      const currentPatientContext = patientContextRef.current;
+      if (currentPatientContext) {
+        systemPrompt = systemPrompt + formatPatientContextForAI(currentPatientContext);
+      }
+
+      return {
+        id,
+        message: body.messages.at(-1),
+        selectedChatModel: `${selectedChatModel?.provider}/${selectedChatModel?.modelId}`,
+        imageGenerationModel: imageGenerationModel
+          ? `${imageGenerationModel.provider}:${imageGenerationModel.modelId}`
+          : undefined,
+        selectedVisibilityType: initialVisibilityType,
+        useNativeSearch,
+        systemPrompt,
+        toolkits: selectedChatModel?.capabilities?.includes(
+          LanguageModelCapability.ToolCalling,
+        )
+          ? toolkits.map((t) => ({
+              id: t.id,
+              parameters: t.parameters,
+            }))
+          : [],
+        workbenchId: workbench?.id,
+      };
+    },
     onFinish: () => {
       setStreamStopped(false);
       void utils.messages.getMessagesForChat.invalidate({ chatId: id });
@@ -303,6 +340,107 @@ export function ChatProvider({
     }
   }, [selectedChatModel]);
 
+  // Simulation logic
+  useEffect(() => {
+    if (simulationStep >= 0 && simulationStep < SIMULATION_STEPS.length) {
+      const step = SIMULATION_STEPS[simulationStep];
+      if (!step) return;
+
+      const timer = setTimeout(() => {
+        setSimulationStep(prev => prev + 1);
+      }, step.duration);
+
+      return () => clearTimeout(timer);
+    } else if (simulationStep >= SIMULATION_STEPS.length) {
+      // Simulation completed, add final response message and open sidebar
+      const finalMessageContent = `## Patient ${EB_PATIENT.name} - Veneer Check Appointment
+
+**Patient Overview:**
+- ${EB_PATIENT.fullName} (${EB_PATIENT.id})
+- Age: ${differenceInYears(new Date(), new Date(EB_PATIENT.dob))}
+- Allergies: ${EB_PATIENT.allergies.join(", ") || "None reported"}
+- Last visit: ${format(new Date(EB_PATIENT.lastVisit), "MMM d, yyyy")}
+
+**Visit Reason:**
+- **Primary:** ${EB_PATIENT.visitReason.primary}
+- **Specific Concerns:** ${EB_PATIENT.visitReason.concerns.join(", ")}
+- **Duration:** ${EB_PATIENT.visitReason.duration}
+- **Urgency:** ${EB_PATIENT.visitReason.urgency.charAt(0).toUpperCase() + EB_PATIENT.visitReason.urgency.slice(1)}
+${EB_PATIENT.visitReason.symptoms.length > 0 && EB_PATIENT.visitReason.symptoms[0] !== "None reported" ? `- **Symptoms:** ${EB_PATIENT.visitReason.symptoms.join(", ")}` : ""}
+${EB_PATIENT.visitReason.referringProvider ? `- **Referred by:** ${EB_PATIENT.visitReason.referringProvider}` : ""}
+
+**Recent Activity:**
+- **Scans:** ${EB_PATIENT.scans.length} recent scans available (${EB_PATIENT.scans.map(s => s.type).join(", ")})
+- **Treatments:** Last treatment was "${EB_PATIENT.recentTreatments[0]?.name}" on ${format(new Date(EB_PATIENT.recentTreatments[0]?.date || new Date()), "MMM d, yyyy")}
+
+**Clinical Summary:**
+${EB_PATIENT.clinicalSummary}
+
+**Recommended Actions:**
+- Review recent scans in sidebar
+- Check veneer margins and occlusion
+- Address any patient concerns about ${EB_PATIENT.notes.join(", ").toLowerCase()}
+- Document findings and schedule follow-up if needed`;
+
+      // Add the final response as a new message (keep simulation steps visible)
+      const finalMessage: UIMessage = {
+        id: generateUUID(),
+        role: "assistant",
+        content: finalMessageContent,
+        parts: [
+          {
+            type: "text",
+            text: finalMessageContent
+          }
+        ],
+      };
+
+      setMessages(prev => [...prev, finalMessage]);
+      // Set patient context for future AI interactions
+      setPatientContext(EB_PATIENT);
+      // Don't auto-open sidebar - let user control it via the toggle button
+      setSimulationStep(-1); // Reset simulation state
+    }
+  }, [simulationStep, setMessages]);
+
+  const startEbAppointmentSimulation = useCallback(() => {
+    if (!ENABLE_DEMO_SCENARIOS) return;
+
+    // Add user message with proper parts structure
+    const userMessage: UIMessage = {
+      id: generateUUID(),
+      role: "user",
+      content: "Pull up all relevant scans, records, and notes for patient EB, she's in for veneer checkup",
+      parts: [
+        {
+          type: "text",
+          text: "Pull up all relevant scans, records, and notes for patient EB, she's in for veneer checkup"
+        }
+      ],
+    };
+
+    // Add simulation tool message
+    const toolMessage: UIMessage = {
+      id: generateUUID(),
+      role: "assistant",
+      content: "", // Will be rendered by SimulatedToolRun component
+      parts: [],
+      toolInvocations: [{
+        toolCallId: "simulation-tool-call",
+        toolName: "simulated-patient-lookup",
+        args: { patientId: "EB-0001" },
+        state: "call"
+      }],
+    };
+
+    setMessages(prev => [...prev, userMessage, toolMessage]);
+    setSimulationStep(0); // Start simulation
+  }, [setMessages]);
+
+  const clearPatientContext = useCallback(() => {
+    setPatientContext(null);
+  }, []);
+
   const value = {
     messages,
     setMessages,
@@ -326,6 +464,14 @@ export function ChatProvider({
     addToolkit,
     removeToolkit,
     workbench,
+    // Simulation state
+    simulationStep,
+    patientSidebarOpen,
+    setPatientSidebarOpen,
+    patientContext,
+    // Simulation actions
+    startEbAppointmentSimulation,
+    clearPatientContext,
   };
 
   return (

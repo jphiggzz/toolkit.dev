@@ -2,8 +2,8 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Toolkit.dev",
-    short_name: "Toolkit.dev",
+    name: "Dental.AI",
+    short_name: "Dental.AI",
     description: "The Playground for LLM Tool Developers",
     start_url: "/",
     display: "standalone",

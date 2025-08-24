@@ -27,7 +27,7 @@ export function InstallPrompt() {
     <div className="bg-card relative flex flex-col gap-3 rounded-lg border p-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <h3 className="font-semibold">Install Toolkit.dev</h3>
+          <h3 className="font-semibold">Install Dental.AI</h3>
         </div>
         <Button
           variant="ghost"
@@ -42,7 +42,7 @@ export function InstallPrompt() {
       {installPrompt ? (
         <div className="space-y-3">
           <p className="text-muted-foreground text-sm">
-            Install Toolkit.dev to your home screen for quick access.
+            Install Dental.AI to your home screen for quick access.
           </p>
           <Button onClick={handleInstall} className="w-full">
             <Download className="mr-2 h-4 w-4" />

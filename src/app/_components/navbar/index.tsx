@@ -20,7 +20,7 @@ export const Navbar = async () => {
         </SidebarTrigger>
         <Link href="/">
           <h1 className="overflow-hidden text-lg font-bold whitespace-nowrap">
-            Toolkit.dev
+            Dental.AI
           </h1>
         </Link>
       </HStack>
