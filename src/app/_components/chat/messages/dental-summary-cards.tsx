@@ -4,10 +4,18 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Markdown } from "@/components/ui/markdown";
-import { User, Activity, CheckCircle, FileText, Stethoscope, Calendar, AlertTriangle, Clock, UserCheck } from "lucide-react";
+import { User, Activity, CheckCircle, FileText, Stethoscope, Calendar, AlertTriangle, Clock, UserCheck, ScanIcon, ChevronRightIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import { format } from "date-fns";
+import { useChatContext } from "@/app/_contexts/chat-context";
+import { ScanPreview } from "../scan-preview";
+import { ScanViewer } from "../scan-viewer";
+import { TreatmentDetailsDialog } from "../treatment-details-dialog";
+import type { MockPatient } from "../mock/patients";
 
 interface DentalSummaryCardsProps {
   content: string;
@@ -195,15 +203,87 @@ function VisitReasonCard({ visitInfo }: { visitInfo: VisitReasonInfo }) {
   );
 }
 
+function RecentTreatments({ 
+  treatments, 
+  onTreatmentClick 
+}: { 
+  treatments: MockPatient["recentTreatments"];
+  onTreatmentClick: (treatment: MockPatient["recentTreatments"][0]) => void;
+}) {
+  if (treatments.length === 0) return null;
+
+  return (
+    <Card className="transition-all duration-200 hover:shadow-sm">
+      <div className="px-4 py-2">
+        <div className="flex items-center gap-2 mb-3">
+          <Calendar className="size-4 text-primary" />
+          <h3 className="text-sm font-medium text-foreground">Recent Treatments</h3>
+        </div>
+        <div className="space-y-3">
+          {treatments.slice(0, 3).map((treatment, index) => (
+            <button
+              key={treatment.id}
+              onClick={() => onTreatmentClick(treatment)}
+              className="w-full text-left space-y-1 hover:bg-muted/50 rounded-md p-2 -m-2 transition-colors group"
+            >
+              <div className="flex items-center justify-between">
+                <div className="text-sm font-medium">{treatment.name}</div>
+                <ChevronRightIcon className="size-4 text-muted-foreground group-hover:text-primary transition-colors" />
+              </div>
+              <div className="text-xs text-muted-foreground">
+                {format(new Date(treatment.date), "MMM d, yyyy")}
+              </div>
+              {treatment.notes && (
+                <div className="text-xs text-muted-foreground/80 line-clamp-2">
+                  {treatment.notes}
+                </div>
+              )}
+              {index < treatments.slice(0, 3).length - 1 && (
+                <Separator className="mt-2" />
+              )}
+            </button>
+          ))}
+          {treatments.length > 3 && (
+            <div className="text-xs text-muted-foreground text-center pt-2">
+              +{treatments.length - 3} more treatments...
+            </div>
+          )}
+        </div>
+      </div>
+    </Card>
+  );
+}
+
 export function DentalSummaryCards({ content }: DentalSummaryCardsProps) {
   // Parse the content to extract the three main sections
   const sections = parseDentalSections(content);
   const patientInfo = parsePatientInfo(content);
   const [visibleItems, setVisibleItems] = useState<number>(0);
+  const { patientContext } = useChatContext();
   
-  // Calculate total items (title + sections)
+  // Dialog state
+  const [selectedScan, setSelectedScan] = useState<MockPatient["scans"][0] | null>(null);
+  const [scanViewerOpen, setScanViewerOpen] = useState(false);
+  const [selectedTreatment, setSelectedTreatment] = useState<MockPatient["recentTreatments"][0] | null>(null);
+  const [treatmentDialogOpen, setTreatmentDialogOpen] = useState(false);
+
+  // Dialog handlers
+  const handleScanClick = (scan: MockPatient["scans"][0]) => {
+    setSelectedScan(scan);
+    setScanViewerOpen(true);
+  };
+
+  const handleTreatmentClick = (treatment: MockPatient["recentTreatments"][0]) => {
+    setSelectedTreatment(treatment);
+    setTreatmentDialogOpen(true);
+  };
+  
+  // Calculate total items (title + sections + patient components)
   const title = getTitle(content);
-  const totalItems = (title ? 1 : 0) + sections.length;
+  const hasPatientComponents = patientContext && (patientContext.scans.length > 0 || patientContext.recentTreatments.length > 0);
+  const patientComponentsCount = hasPatientComponents ? 
+    (patientContext.scans.length > 0 ? 1 : 0) + (patientContext.recentTreatments.length > 0 ? 1 : 0) : 0;
+  const totalItems = (title ? 1 : 0) + sections.length + patientComponentsCount;
   
   if (sections.length === 0) {
     // Fallback to regular markdown if parsing fails
@@ -267,6 +347,46 @@ export function DentalSummaryCards({ content }: DentalSummaryCardsProps) {
               return <PatientProfileCard key={index} patientInfo={patientInfo} delay={delay} />;
             }
             
+            // Special handling for Recent Activity - replace with actual components
+            if (section.title === "Recent Activity" && patientContext) {
+              return (
+                <div key={index} className="space-y-3">
+                  {patientContext.scans.length > 0 && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 15, scale: 0.98 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      transition={{ 
+                        duration: 0.4, 
+                        delay,
+                        ease: [0.21, 1.11, 0.81, 0.99]
+                      }}
+                    >
+                      <ScanPreview 
+                        scans={patientContext.scans} 
+                        onScanClick={handleScanClick}
+                      />
+                    </motion.div>
+                  )}
+                  {patientContext.recentTreatments.length > 0 && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 15, scale: 0.98 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      transition={{ 
+                        duration: 0.4, 
+                        delay: delay + 0.1,
+                        ease: [0.21, 1.11, 0.81, 0.99]
+                      }}
+                    >
+                      <RecentTreatments 
+                        treatments={patientContext.recentTreatments} 
+                        onTreatmentClick={handleTreatmentClick}
+                      />
+                    </motion.div>
+                  )}
+                </div>
+              );
+            }
+            
             // Regular card for other sections
             return (
               <motion.div
@@ -312,6 +432,19 @@ export function DentalSummaryCards({ content }: DentalSummaryCardsProps) {
           })}
         </AnimatePresence>
       </div>
+      
+      {/* Dialog Components */}
+      <ScanViewer
+        scan={selectedScan}
+        open={scanViewerOpen}
+        onOpenChange={setScanViewerOpen}
+      />
+      
+      <TreatmentDetailsDialog
+        treatment={selectedTreatment}
+        open={treatmentDialogOpen}
+        onOpenChange={setTreatmentDialogOpen}
+      />
     </div>
   );
 }

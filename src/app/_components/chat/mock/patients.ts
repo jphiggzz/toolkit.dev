@@ -179,69 +179,69 @@ export const TRUMP_PATIENT: MockPatient = {
   clinicalSummary: "Multiple crowns and extensive restorative work. Patient maintains excellent oral hygiene with professional support. Crown #8 requires attention."
 };
 
-// Henry Kissinger - Senior patient with complex medical history  
-export const KISSINGER_PATIENT: MockPatient = {
-  id: "HK-0003",
-  name: "H. Kissinger", 
-  fullName: "Henry Kissinger",
-  dob: "1923-05-27",
-  allergies: ["Latex", "Aspirin"],
-  notes: ["Requires antibiotic prophylaxis", "Heart condition - coordinate with cardiologist"],
-  lastVisit: "2025-06-05",
-  activeConcerns: ["Denture adjustment", "Dry mouth management"],
+// Dr. Tim Whatley - Dentist from Seinfeld with unconventional practices
+export const WHATLEY_PATIENT: MockPatient = {
+  id: "TW-0003",
+  name: "T. Whatley", 
+  fullName: "Dr. Tim Whatley",
+  dob: "1958-03-07",
+  allergies: ["Novocaine"],
+  notes: ["Fellow dentist - professional courtesy", "Recently converted to Judaism", "Known for unconventional methods"],
+  lastVisit: "2025-06-08",
+  activeConcerns: ["Professional consultation", "Second opinion on treatment plan"],
   visitReason: {
-    primary: "Denture maintenance and oral health consultation",
-    concerns: ["Improve denture fit", "Address dry mouth symptoms", "Routine oral cancer screening"],
-    symptoms: ["Denture irritation", "Dry mouth", "Difficulty eating certain foods"],
-    duration: "3 months",
+    primary: "Colleague consultation and routine examination",
+    concerns: ["Discuss new anesthesia techniques", "Review recent case studies", "Professional development"],
+    symptoms: ["Minor sensitivity in upper molars", "Occasional jaw clicking"],
+    duration: "2 weeks",
     urgency: "routine",
-    referringProvider: "Dr. Sarah Chen, Cardiology"
+    referringProvider: null
   },
   scans: [
     {
-      id: "scan-hk-1",
-      type: "Panoramic", 
-      date: "2025-06-05",
-      image: "/dental-scans/panoramic.png",
-      description: "Edentulous panoramic radiograph",
-      findings: ["Good bone density for denture support", "No pathology detected", "Bilateral TMJ changes consistent with age"]
+      id: "scan-tw-1",
+      type: "Bitewing", 
+      date: "2025-06-08",
+      image: "/dental-scans/bitewing.png",
+      description: "Bilateral bitewing radiographs",
+      findings: ["Excellent oral hygiene", "Minor wear on posterior teeth", "No caries detected"]
     }
   ],
   recentTreatments: [
     {
-      id: "treatment-hk-1",
-      date: "2025-03-15",
-      name: "Denture reline and adjustment",
-      type: "Prosthetic",
-      teeth: ["Complete upper and lower dentures"],
-      description: "Soft reline of existing dentures with occlusal adjustment",
-      materials: ["Soft acrylic resin liner", "Articulating paper"],
+      id: "treatment-tw-1",
+      date: "2025-04-22",
+      name: "Professional cleaning and examination",
+      type: "Preventive",
+      teeth: ["Full mouth"],
+      description: "Routine prophylaxis with professional courtesy",
+      materials: ["Ultrasonic scaler", "Prophy paste"],
       notes: [
-        "Improved retention and comfort",
-        "Balanced occlusion achieved", 
-        "Patient education on denture care provided"
+        "Discussed latest dental techniques",
+        "Shared experiences from practice",
+        "Recommended new equipment vendor"
       ],
-      followUp: "3-month comfort check",
-      cost: "$450"
+      followUp: "6-month routine cleaning",
+      cost: "Professional courtesy"
     },
     {
-      id: "treatment-hk-2",
-      date: "2025-01-10", 
-      name: "Oral cancer screening",
-      type: "Diagnostic",
-      teeth: ["Soft tissue examination"],
-      description: "Comprehensive soft tissue examination and oral cancer screening",
-      materials: ["ViziLite enhanced oral assessment"],
+      id: "treatment-tw-2",
+      date: "2025-02-14", 
+      name: "Occlusal adjustment",
+      type: "Restorative",
+      teeth: ["#14", "#15"],
+      description: "Minor occlusal adjustment for TMJ comfort",
+      materials: ["Articulating paper", "Diamond bur"],
       notes: [
-        "No suspicious lesions detected",
-        "Minor tissue irritation from dentures noted",
-        "Advised on dry mouth management"
+        "Reduced high spots on recent restorations",
+        "Patient reports improved comfort",
+        "Discussed stress management techniques"
       ],
-      followUp: "Annual screening",
-      cost: "$180"
+      followUp: "2-week comfort check",
+      cost: "$120"
     }
   ],
-  clinicalSummary: "Well-maintained edentulous patient with complete dentures. Requires careful management due to medical complexity and age-related changes."
+  clinicalSummary: "Fellow dental professional with excellent oral hygiene. Known for creative treatment approaches and strong opinions about dental practice management."
 };
 
 // Kramer from Seinfeld - Eccentric character with unique dental situations
@@ -313,7 +313,7 @@ export const KRAMER_PATIENT: MockPatient = {
 export const ALL_PATIENTS: MockPatient[] = [
   EB_PATIENT,
   TRUMP_PATIENT, 
-  KISSINGER_PATIENT,
+  WHATLEY_PATIENT,
   KRAMER_PATIENT
 ];
 

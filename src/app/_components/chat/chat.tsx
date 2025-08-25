@@ -15,6 +15,7 @@ import { useSearchParams } from "next/navigation";
 import { WelcomeDialog } from "../welcome-dialog";
 import { PatientSidebar } from "./patient-sidebar";
 import { EB_PATIENT, ENABLE_DEMO_SCENARIOS } from "./mock/eb-patient";
+import { TodaysSchedule } from "./todays-schedule";
 import { Anvil, CalendarIcon } from "lucide-react";
 
 export const ChatContent = ({
@@ -65,6 +66,8 @@ export const ChatContent = ({
           animate={
             hasMessages || hasInitialMessages
               ? { y: 0 }
+              : !workbench && ENABLE_DEMO_SCENARIOS
+              ? { y: "calc(-50vh + 45%)" } // Slightly higher position when schedule is shown
               : { y: "calc(-50vh + 50%)" }
           }
           transition={{
@@ -72,7 +75,11 @@ export const ChatContent = ({
             ease: "easeInOut",
             duration: 0.4,
           }}
-          className="absolute bottom-4 left-1/2 h-fit w-full max-w-3xl -translate-x-1/2 px-4"
+          className={`absolute left-1/2 h-fit w-full max-w-3xl -translate-x-1/2 px-4 ${
+            !hasMessages && !hasInitialMessages && !workbench && ENABLE_DEMO_SCENARIOS 
+              ? 'bottom-16' // Make room for carousel when it's shown (208px)
+              : 'bottom-4'  // Normal position when no carousel
+          }`}
         >
           {/* Greeting - only shown when no messages */}
           <AnimatePresence>
@@ -115,41 +122,7 @@ export const ChatContent = ({
                     : "Welcome to Dental.AI"}
                 </motion.h1>
                 
-                {/* EB Appointment Card - only show for non-workbench and when demo enabled */}
-                {!workbench && ENABLE_DEMO_SCENARIOS && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ delay: 0.4, duration: 0.3 }}
-                    className="mt-6 w-full max-w-sm"
-                  >
-                    <Card className="cursor-pointer transition-all duration-200 hover:shadow-md hover:scale-[1.02] border-primary/20 hover:border-primary/40">
-                      <CardHeader className="pb-3">
-                        <div className="flex items-center gap-3">
-                          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
-                            <CalendarIcon className="h-5 w-5 text-primary" />
-                          </div>
-                          <div>
-                            <CardTitle className="text-base">EB Appointment</CardTitle>
-                            <CardDescription className="text-sm">
-                              Start a simulated dental appointment
-                            </CardDescription>
-                          </div>
-                        </div>
-                      </CardHeader>
-                      <CardContent className="pt-0">
-                        <Button
-                          onClick={startEbAppointmentSimulation}
-                          className="w-full"
-                          size="sm"
-                        >
-                          Start Appointment
-                        </Button>
-                      </CardContent>
-                    </Card>
-                  </motion.div>
-                )}
+
               </motion.div>
             )}
           </AnimatePresence>
@@ -164,7 +137,7 @@ export const ChatContent = ({
           )}
 
           {/* Starter Prompts - only shown when no messages */}
-          <AnimatePresence>
+          {/* <AnimatePresence>
             {!hasMessages && !hasInitialMessages && (
               <motion.div
                 initial={{ opacity: 0, height: "auto" }}
@@ -183,8 +156,27 @@ export const ChatContent = ({
                 {!hasMessages && <StarterPrompts />}
               </motion.div>
             )}
-          </AnimatePresence>
+          </AnimatePresence> */}
+
         </motion.div>
+
+        {/* Today's Schedule Carousel - full width, positioned as sibling to input */}
+        <AnimatePresence>
+          {!hasMessages && !hasInitialMessages && !workbench && ENABLE_DEMO_SCENARIOS && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{
+                enter: { delay: 0.7, duration: 0.4 },
+                exit: { delay: 0, duration: 0.1 },
+              }}
+              className="absolute bottom-4 left-0 right-0 w-full px-4 overflow-hidden"
+            >
+              <TodaysSchedule />
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       {/* Patient Sidebar */}

@@ -39,6 +39,21 @@ export const googleCalendarCreateEventToolConfigServer = (
         };
       } catch (error) {
         console.error("[CreateEvent] Error creating event:", error);
+        
+        // Check for authentication errors
+        if (error instanceof Error && error.message.includes("invalid authentication")) {
+          throw new Error(
+            "Authentication failed. Please disconnect and reconnect your Google Calendar to refresh your access token."
+          );
+        }
+        
+        // Check for expired token errors
+        if (error instanceof Error && error.message.includes("invalid_grant")) {
+          throw new Error(
+            "Your Google Calendar access has expired. Please disconnect and reconnect your Google Calendar."
+          );
+        }
+        
         throw new Error(
           `Failed to create event: ${error instanceof Error ? error.message : "Unknown error"}`,
         );

@@ -10,8 +10,10 @@ import {
   googleCalendarFindAvailabilityToolConfigServer,
 } from "./tools/server";
 import { GoogleCalendarTools } from "./tools";
+import { auth } from "@/server/auth";
 import { api } from "@/trpc/server";
 import { createCalendarClient } from "./lib";
+import { refreshGoogleAccessToken, isTokenExpired } from "./lib/token-refresh";
 
 export const googleCalendarToolkitServer = createServerToolkit(
   baseGoogleCalendarToolkitConfig,
@@ -49,8 +51,15 @@ export const googleCalendarToolkitServer = createServerToolkit(
 - When creating events, include all necessary details like attendees, location, and reminders
 - Consider using appropriate visibility and transparency settings for different event types`,
   async () => {
-    const account = await api.accounts.getAccountByProvider("google");
+    const session = await auth();
 
+    if (!session?.user?.id) {
+      throw new Error("User not found");
+    }
+
+    // Get account from database
+    const account = await api.accounts.getAccountByProvider("google");
+    
     if (!account) {
       throw new Error("No Google account found");
     }
@@ -59,8 +68,22 @@ export const googleCalendarToolkitServer = createServerToolkit(
       throw new Error("No Google access token found");
     }
 
-    // Create Google Calendar client
-    const calendar = createCalendarClient(account.access_token);
+    let accessToken = account.access_token;
+
+    // Check if token needs refresh
+    if (isTokenExpired(account.expires_at)) {
+      console.log("Access token expired, attempting refresh...");
+      const refreshedToken = await refreshGoogleAccessToken(session.user.id);
+      
+      if (!refreshedToken) {
+        throw new Error("Failed to refresh Google access token. Please re-authenticate.");
+      }
+      
+      accessToken = refreshedToken;
+    }
+
+    // Create Google Calendar client with fresh token
+    const calendar = createCalendarClient(accessToken);
 
     return {
       [GoogleCalendarTools.ListCalendars]:

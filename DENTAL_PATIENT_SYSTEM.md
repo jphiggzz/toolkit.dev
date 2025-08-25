@@ -42,12 +42,12 @@ This system provides a clean, modular approach to managing multiple dental AI pa
 - **Complexity**: Cosmetic focus with existing restorative work
 - **Urgency**: Urgent
 
-### 3. Henry Kissinger (HK-0003) - Senior Patient
-- **Profile**: Senior patient, 100 years old
-- **Visit**: Denture maintenance and oral health consultation  
-- **Complexity**: Medical complexity, requires prophylaxis
+### 3. Dr. Tim Whatley (TW-0003) - Fellow Dentist
+- **Profile**: Dentist colleague, 66 years old
+- **Visit**: Professional consultation and routine examination
+- **Complexity**: Professional courtesy case with colleague discussion
 - **Urgency**: Routine
-- **Special Notes**: Heart condition, multiple allergies
+- **Special Notes**: Fellow dentist, recently converted to Judaism, unconventional methods
 
 ### 4. Cosmo Kramer (KR-0004) - Eccentric Patient
 - **Profile**: Quirky character, 68 years old  
@@ -98,7 +98,7 @@ public/
 └── patient-profiles/
     ├── eb-0001.png                          # Patient profile images
     ├── dt-0002.png
-    ├── hk-0003.png
+    ├── tw-0003.png
     ├── kr-0004.png
     └── README.md                            # Image guidelines
 ```

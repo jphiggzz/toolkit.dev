@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { motion } from "motion/react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -19,9 +18,8 @@ import {
 import { ALL_PATIENTS } from "@/app/_components/chat/mock/patients";
 import type { MockPatient } from "@/app/_components/chat/mock/patients";
 import { format, differenceInYears } from "date-fns";
-import { cn } from "@/lib/utils";
 
-function PatientCard({ patient, index }: { patient: MockPatient; index: number }) {
+function PatientCard({ patient }: { patient: MockPatient }) {
   const [imageLoaded, setImageLoaded] = useState(false);
   const router = useRouter();
   
@@ -44,32 +42,12 @@ function PatientCard({ patient, index }: { patient: MockPatient; index: number }
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20, scale: 0.95 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      transition={{ 
-        duration: 0.5,
-        delay: index * 0.1,
-        ease: [0.21, 1.11, 0.81, 0.99]
-      }}
-      whileHover={{ 
-        scale: 1.02,
-        transition: { duration: 0.2 }
-      }}
-    >
-      <Card className="overflow-hidden transition-all duration-300 hover:shadow-lg border-border/50 bg-gradient-to-br from-background to-muted/20">
+    <div>
+      <Card className="overflow-hidden transition-all duration-300 hover:shadow-lg border-border/50 bg-gradient-to-br from-background to-muted/20 hover:scale-[1.02]">
         <CardContent className="p-6">
           {/* Header with Avatar and Name */}
           <div className="flex items-start gap-4 mb-6">
-            <motion.div
-              initial={{ scale: 0, rotate: -180 }}
-              animate={{ scale: 1, rotate: 0 }}
-              transition={{ 
-                delay: index * 0.1 + 0.2, 
-                duration: 0.4, 
-                ease: [0.68, -0.55, 0.265, 1.55] 
-              }}
-            >
+            <div>
               <Avatar className="h-16 w-16">
                 <AvatarImage 
                   src={profileImagePath} 
@@ -80,7 +58,7 @@ function PatientCard({ patient, index }: { patient: MockPatient; index: number }
                   {initials}
                 </AvatarFallback>
               </Avatar>
-            </motion.div>
+            </div>
             
             <div className="flex-1">
               <h3 className="text-xl font-semibold text-foreground mb-1">
@@ -179,10 +157,7 @@ function PatientCard({ patient, index }: { patient: MockPatient; index: number }
               className="w-full" 
               variant="ghost"
               size="sm"
-              onClick={() => {
-                // TODO: Add patient details modal or page
-                console.log('View patient details:', patient.id);
-              }}
+              onClick={() => router.push(`/people/${patient.id}`)}
             >
               <Eye className="h-4 w-4 mr-2" />
               View Details
@@ -190,47 +165,36 @@ function PatientCard({ patient, index }: { patient: MockPatient; index: number }
           </div>
         </CardContent>
       </Card>
-    </motion.div>
+    </div>
   );
 }
 
 export default function PeoplePage() {
   return (
     <div className="container mx-auto px-4 py-8 max-w-7xl">
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="mb-8"
-      >
+      <div className="mb-8">
         <h1 className="text-3xl font-bold text-foreground mb-2">
           Dental Patients
         </h1>
         <p className="text-foreground/70">
           Mock patient profiles for dental AI simulation system
         </p>
-      </motion.div>
+      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {ALL_PATIENTS.map((patient, index) => (
+        {ALL_PATIENTS.map((patient) => (
           <PatientCard 
             key={patient.id} 
             patient={patient} 
-            index={index} 
           />
         ))}
       </div>
 
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.8, duration: 0.5 }}
-        className="mt-12 text-center"
-      >
+      <div className="mt-12 text-center">
         <p className="text-sm text-foreground/60">
           Click on any patient card to view detailed medical history and begin simulation
         </p>
-      </motion.div>
+      </div>
     </div>
   );
 }

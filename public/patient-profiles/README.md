@@ -20,7 +20,7 @@ Patient profile pictures should be named using the patient ID in lowercase, foll
 Based on the mock data:
 - **EB Plumeri (EB-0001)**: `eb-0001.png` - Dental professional with veneer follow-up
 - **Donald Trump (DT-0002)**: `dt-0002.png` - High-profile patient with crown replacement
-- **Henry Kissinger (HK-0003)**: `hk-0003.png` - Senior patient with denture maintenance  
+- **Dr. Tim Whatley (TW-0003)**: `tw-0003.png` - Fellow dentist with professional consultation  
 - **Cosmo Kramer (KR-0004)**: `kr-0004.png` - Eccentric patient with emergency bonding repair
 
 ## Usage
