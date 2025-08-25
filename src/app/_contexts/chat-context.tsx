@@ -31,8 +31,8 @@ import { fetchWithErrorHandlers } from "@/lib/fetch";
 import { ChatSDKError } from "@/lib/errors";
 import { IS_DEVELOPMENT } from "@/lib/constants";
 import { format, differenceInYears } from "date-fns";
-import { EB_PATIENT, SIMULATION_STEPS, ENABLE_DEMO_SCENARIOS } from "@/app/_components/chat/mock/eb-patient";
-import type { MockPatient } from "@/app/_components/chat/mock/eb-patient";
+import { EB_PATIENT, SIMULATION_STEPS, ENABLE_DEMO_SCENARIOS, getPatientById, generatePatientSimulationMessage } from "@/app/_components/chat/mock/patients";
+import type { MockPatient } from "@/app/_components/chat/mock/patients";
 import { formatPatientContextForAI } from "@/app/_components/chat/utils/patient-context-formatter";
 
 import type { ReactNode } from "react";
@@ -353,34 +353,8 @@ export function ChatProvider({
       return () => clearTimeout(timer);
     } else if (simulationStep >= SIMULATION_STEPS.length) {
       // Simulation completed, add final response message and open sidebar
-      const finalMessageContent = `## Patient ${EB_PATIENT.name} - Veneer Check Appointment
-
-**Patient Overview:**
-- ${EB_PATIENT.fullName} (${EB_PATIENT.id})
-- Age: ${differenceInYears(new Date(), new Date(EB_PATIENT.dob))}
-- Allergies: ${EB_PATIENT.allergies.join(", ") || "None reported"}
-- Last visit: ${format(new Date(EB_PATIENT.lastVisit), "MMM d, yyyy")}
-
-**Visit Reason:**
-- **Primary:** ${EB_PATIENT.visitReason.primary}
-- **Specific Concerns:** ${EB_PATIENT.visitReason.concerns.join(", ")}
-- **Duration:** ${EB_PATIENT.visitReason.duration}
-- **Urgency:** ${EB_PATIENT.visitReason.urgency.charAt(0).toUpperCase() + EB_PATIENT.visitReason.urgency.slice(1)}
-${EB_PATIENT.visitReason.symptoms.length > 0 && EB_PATIENT.visitReason.symptoms[0] !== "None reported" ? `- **Symptoms:** ${EB_PATIENT.visitReason.symptoms.join(", ")}` : ""}
-${EB_PATIENT.visitReason.referringProvider ? `- **Referred by:** ${EB_PATIENT.visitReason.referringProvider}` : ""}
-
-**Recent Activity:**
-- **Scans:** ${EB_PATIENT.scans.length} recent scans available (${EB_PATIENT.scans.map(s => s.type).join(", ")})
-- **Treatments:** Last treatment was "${EB_PATIENT.recentTreatments[0]?.name}" on ${format(new Date(EB_PATIENT.recentTreatments[0]?.date || new Date()), "MMM d, yyyy")}
-
-**Clinical Summary:**
-${EB_PATIENT.clinicalSummary}
-
-**Recommended Actions:**
-- Review recent scans in sidebar
-- Check veneer margins and occlusion
-- Address any patient concerns about ${EB_PATIENT.notes.join(", ").toLowerCase()}
-- Document findings and schedule follow-up if needed`;
+      const currentPatient = patientContextRef.current || EB_PATIENT;
+      const finalMessageContent = generatePatientSimulationMessage(currentPatient);
 
       // Add the final response as a new message (keep simulation steps visible)
       const finalMessage: UIMessage = {
@@ -397,7 +371,7 @@ ${EB_PATIENT.clinicalSummary}
 
       setMessages(prev => [...prev, finalMessage]);
       // Set patient context for future AI interactions
-      setPatientContext(EB_PATIENT);
+      setPatientContext(currentPatient);
       // Don't auto-open sidebar - let user control it via the toggle button
       setSimulationStep(-1); // Reset simulation state
     }
