@@ -7,7 +7,7 @@ This directory contains profile pictures for patients in the dental simulation s
 Patient profile pictures should be named using the patient ID in lowercase, followed by `.png` or `.jpg`:
 
 - For patient ID "EB-0001", name the file: `eb-0001.png` or `eb-0001.jpg`
-- For patient ID "JD-0042", name the file: `jd-0042.png` or `jd-0042.jpg`
+- For patient ID "DT-0002", name the file: `dt-0002.png` or `dt-0002.jpg`
 
 ## Image Requirements
 
@@ -18,7 +18,18 @@ Patient profile pictures should be named using the patient ID in lowercase, foll
 ## Current Patients
 
 Based on the mock data:
-- **EB Plumeri (EB-0001)**: `eb-0001.png`
+- **EB Plumeri (EB-0001)**: `eb-0001.png` - Dental professional with veneer follow-up
+- **Donald Trump (DT-0002)**: `dt-0002.png` - High-profile patient with crown replacement
+- **Henry Kissinger (HK-0003)**: `hk-0003.png` - Senior patient with denture maintenance  
+- **Cosmo Kramer (KR-0004)**: `kr-0004.png` - Eccentric patient with emergency bonding repair
+
+## Usage
+
+The patient system supports:
+- Multiple patient profiles with comprehensive mock data
+- Patient selection via URL parameters: `/?patient=EB-0001`
+- Individual patient simulations with realistic medical histories
+- Navigation via `/people` page to browse all patients
 
 ## Fallback
 

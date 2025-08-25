@@ -2,6 +2,7 @@ import { Chat } from "@/app/_components/chat";
 import { auth } from "@/server/auth";
 import { generateUUID } from "@/lib/utils";
 import LandingPage from "./_components/landing-page";
+import { ChatWithPatientSelection } from "./_components/chat-with-patient-selection";
 
 export default async function Page() {
   const session = await auth();
@@ -13,12 +14,8 @@ export default async function Page() {
   const id = generateUUID();
 
   return (
-    <Chat
-      key={id}
-      id={id}
-      initialVisibilityType="private"
-      isReadonly={false}
-      isNew={true}
+    <ChatWithPatientSelection
+      chatId={id}
     />
   );
 }
