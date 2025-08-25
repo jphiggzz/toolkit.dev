@@ -1,5 +1,5 @@
 import { format, differenceInYears } from "date-fns";
-import type { MockPatient } from "../mock/eb-patient";
+import type { MockPatient } from "../mock/patients";
 
 export function formatPatientContextForAI(patient: MockPatient): string {
   const age = differenceInYears(new Date(), new Date(patient.dob));

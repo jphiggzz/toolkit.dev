@@ -2,6 +2,7 @@ import { notFound, redirect } from "next/navigation";
 
 import { Chat } from "@/app/_components/chat";
 import { api } from "@/trpc/server";
+import { serverCookieUtils } from "@/lib/cookies/server";
 
 import { auth } from "@/server/auth";
 
@@ -15,7 +16,10 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
     redirect(`/login?redirect=/${id}`);
   }
 
-  const chat = await api.chats.getChat(id);
+  const [chat, preferences] = await Promise.all([
+    api.chats.getChat(id),
+    serverCookieUtils.getPreferences(),
+  ]);
 
   if (!chat) {
     notFound();
@@ -28,6 +32,7 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
         initialVisibilityType={chat.visibility}
         isReadonly={session?.user?.id !== chat.userId}
         isNew={false}
+        preferences={preferences}
       />
     </>
   );

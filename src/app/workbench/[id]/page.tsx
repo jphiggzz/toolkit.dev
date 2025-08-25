@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { Chat } from "@/app/_components/chat";
 import { api } from "@/trpc/server";
 import { generateUUID } from "@/lib/utils";
+import { serverCookieUtils } from "@/lib/cookies/server";
 
 export default async function WorkbenchPage(props: {
   params: Promise<{ id: string }>;
@@ -11,7 +12,10 @@ export default async function WorkbenchPage(props: {
   const { id } = params;
 
   try {
-    const workbench = await api.workbenches.getWorkbench(id);
+    const [workbench, preferences] = await Promise.all([
+      api.workbenches.getWorkbench(id),
+      serverCookieUtils.getPreferences(),
+    ]);
 
     if (!workbench) {
       notFound();
@@ -26,6 +30,7 @@ export default async function WorkbenchPage(props: {
         isNew={true}
         initialVisibilityType="private"
         workbench={workbench}
+        preferences={preferences}
       />
     );
   } catch (error) {

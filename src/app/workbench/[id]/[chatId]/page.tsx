@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { auth } from "@/server/auth";
 import { Chat } from "@/app/_components/chat";
 import { api } from "@/trpc/server";
+import { serverCookieUtils } from "@/lib/cookies/server";
 
 export default async function Page(props: {
   params: Promise<{ id: string; chatId: string }>;
@@ -12,9 +13,10 @@ export default async function Page(props: {
 
   const session = await auth();
 
-  const [chat, workbench] = await Promise.all([
+  const [chat, workbench, preferences] = await Promise.all([
     api.chats.getChat(chatId),
     api.workbenches.getWorkbench(id),
+    serverCookieUtils.getPreferences(),
   ]);
 
   if (!chat || !workbench) {
@@ -28,6 +30,7 @@ export default async function Page(props: {
       isReadonly={session?.user?.id !== chat.userId}
       isNew={false}
       workbench={workbench}
+      preferences={preferences}
     />
   );
 }

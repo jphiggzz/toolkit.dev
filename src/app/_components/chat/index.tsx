@@ -5,11 +5,10 @@ import { ChatLayout } from "./layout";
 import type { Attachment, UIMessage } from "ai";
 import { languageModels } from "@/ai/language";
 import { ChatContent } from "./chat";
-import { serverCookieUtils } from "@/lib/cookies/server";
 import { clientToolkits } from "@/toolkits/toolkits/client";
 import type { ClientToolkit } from "@/toolkits/types";
 import type { z } from "zod";
-import type { PersistedToolkit } from "@/lib/cookies/types";
+import type { PersistedToolkit, ChatPreferences } from "@/lib/cookies/types";
 
 interface Props {
   id: string;
@@ -17,6 +16,7 @@ interface Props {
   isReadonly: boolean;
   isNew: boolean;
   workbench?: Workbench;
+  preferences?: ChatPreferences;
 }
 
 export const Chat = async ({
@@ -25,6 +25,7 @@ export const Chat = async ({
   isReadonly,
   isNew,
   workbench,
+  preferences = {},
 }: Props) => {
   const initialMessages = isNew
     ? []
@@ -37,15 +38,12 @@ export const Chat = async ({
         },
       });
 
-  // Fetch user preferences from server-side cookies
-  const serverPreferences = await serverCookieUtils.getPreferences();
-
-  // Convert server preferences to the format expected by ChatProvider
+  // Convert preferences to the format expected by ChatProvider
   const initialPreferences = {
-    selectedChatModel: serverPreferences.selectedChatModel,
-    imageGenerationModel: serverPreferences.imageGenerationModel,
-    useNativeSearch: serverPreferences.useNativeSearch,
-    toolkits: serverPreferences.toolkits
+    selectedChatModel: preferences.selectedChatModel,
+    imageGenerationModel: preferences.imageGenerationModel,
+    useNativeSearch: preferences.useNativeSearch,
+    toolkits: preferences.toolkits
       ?.map((persistedToolkit: PersistedToolkit) => {
         const clientToolkit =
           clientToolkits[persistedToolkit.id as keyof typeof clientToolkits];
