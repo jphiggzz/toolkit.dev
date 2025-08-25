@@ -6,7 +6,7 @@ import { analyzeAvailability } from "./lib";
 
 export const googleCalendarFindAvailabilityToolConfigServer = (
   calendar: calendar_v3.Calendar,
-  notion: Client,
+  notion?: Client,
 ): ServerToolConfig<
   typeof findAvailabilityTool.inputSchema.shape,
   typeof findAvailabilityTool.outputSchema.shape

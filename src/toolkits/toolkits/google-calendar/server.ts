@@ -11,7 +11,6 @@ import {
 } from "./tools/server";
 import { GoogleCalendarTools } from "./tools";
 import { api } from "@/trpc/server";
-import { Client } from "@notionhq/client";
 import { createCalendarClient } from "./lib";
 
 export const googleCalendarToolkitServer = createServerToolkit(
@@ -51,7 +50,6 @@ export const googleCalendarToolkitServer = createServerToolkit(
 - Consider using appropriate visibility and transparency settings for different event types`,
   async () => {
     const account = await api.accounts.getAccountByProvider("google");
-    const notionAccount = await api.accounts.getAccountByProvider("notion");
 
     if (!account) {
       throw new Error("No Google account found");
@@ -61,17 +59,8 @@ export const googleCalendarToolkitServer = createServerToolkit(
       throw new Error("No Google access token found");
     }
 
-    if (!notionAccount?.access_token) {
-      throw new Error("No Notion account found or access token missing");
-    }
-
     // Create Google Calendar client
     const calendar = createCalendarClient(account.access_token);
-
-    // Create Notion client
-    const notion = new Client({
-      auth: notionAccount.access_token,
-    });
 
     return {
       [GoogleCalendarTools.ListCalendars]:
@@ -87,7 +76,7 @@ export const googleCalendarToolkitServer = createServerToolkit(
       [GoogleCalendarTools.CreateEvent]:
         googleCalendarCreateEventToolConfigServer(calendar),
       [GoogleCalendarTools.FindAvailability]:
-        googleCalendarFindAvailabilityToolConfigServer(calendar, notion),
+        googleCalendarFindAvailabilityToolConfigServer(calendar, undefined),
     };
   },
 );

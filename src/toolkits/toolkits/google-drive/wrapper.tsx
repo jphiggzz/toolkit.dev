@@ -23,36 +23,11 @@ export const GoogleDriveWrapper: ClientToolkitWrapper = ({ Item }) => {
   const { data: account, isLoading: isLoadingAccount } =
     api.accounts.getAccountByProvider.useQuery("google");
 
-  const { data: hasAccess, isLoading: isLoadingAccess } =
-    api.features.hasFeature.useQuery({
-      feature: "google-drive",
-    });
-
-  const [isPrivateBetaDialogOpen, setIsPrivateBetaDialogOpen] = useState(false);
   const [isAuthRequiredDialogOpen, setIsAuthRequiredDialogOpen] =
     useState(false);
 
-  if (isLoadingAccount || isLoadingAccess) {
+  if (isLoadingAccount) {
     return <Item isLoading={true} />;
-  }
-
-  if (!hasAccess) {
-    return (
-      <>
-        <Item
-          isLoading={isLoadingAccount || isLoadingAccess}
-          onSelect={() => setIsPrivateBetaDialogOpen(true)}
-        />
-        <AuthRequiredDialog
-          isOpen={isPrivateBetaDialogOpen}
-          onOpenChange={setIsPrivateBetaDialogOpen}
-          Icon={SiGoogledrive}
-          title="Beta Access Required"
-          description="We need to add you as a test user on Google Cloud for us to request sensitive OAuth scopes. Please contact @jsonhedman on X to request access. You can also run the project locally and use your own Google Cloud project."
-          content={null}
-        />
-      </>
-    );
   }
 
   if (!account?.scope?.includes(driveScope)) {
