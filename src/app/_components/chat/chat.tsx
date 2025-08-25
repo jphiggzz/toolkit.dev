@@ -43,7 +43,11 @@ export const ChatContent = ({
 
   return (
     <>
-      <div className="bg-background relative flex h-full min-w-0 flex-col">
+      <div 
+        className={`bg-background relative flex h-full min-w-0 flex-col transition-all duration-300 ${
+          patientSidebarOpen ? 'md:mr-[400px]' : ''
+        }`}
+      >
         {/* Messages - always shown */}
         <Messages
           chatId={id}

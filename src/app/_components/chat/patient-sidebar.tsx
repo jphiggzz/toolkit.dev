@@ -2,19 +2,14 @@
 
 import { useState } from "react";
 import { format, differenceInYears } from "date-fns";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
+import { motion, AnimatePresence } from "motion/react";
 
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { CalendarIcon, FileTextIcon, ScanIcon, PillIcon, EyeIcon, ChevronRightIcon } from "lucide-react";
+import { CalendarIcon, FileTextIcon, ScanIcon, PillIcon, EyeIcon, ChevronRightIcon, XIcon } from "lucide-react";
 import { ScanViewer } from "./scan-viewer";
 import { ScanPreview } from "./scan-preview";
 import { TreatmentDetailsDialog } from "./treatment-details-dialog";
@@ -47,23 +42,55 @@ export function PatientSidebar({ patient, open, onOpenChange }: PatientSidebarPr
   };
 
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="right" className="w-[400px] sm:w-[400px] flex flex-col gap-0 p-0 h-full">
-        <SheetHeader className="px-6 py-4 border-b flex-shrink-0">
-          <SheetTitle className="flex items-center gap-3">
-            <Avatar className="size-8">
-              <AvatarFallback className="text-xs">
-                {patient.name}
-              </AvatarFallback>
-            </Avatar>
-            <div>
-              <div className="font-semibold">{patient.fullName}</div>
-              <div className="text-sm text-muted-foreground">
-                {patient.id} • {age} years old
+    <AnimatePresence>
+      {open && (
+        <>
+          {/* Backdrop for mobile */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => onOpenChange(false)}
+            className="fixed inset-0 z-40 bg-black/20 backdrop-blur-sm md:hidden"
+          />
+          
+          {/* Sidebar */}
+          <motion.div
+            initial={{ x: "100%", opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            exit={{ x: "100%", opacity: 0 }}
+            transition={{ 
+              type: "spring", 
+              damping: 30, 
+              stiffness: 300,
+              opacity: { duration: 0.2 }
+            }}
+            className="fixed right-0 top-0 z-50 h-full w-[400px] max-w-[90vw] bg-background border-l border-border flex flex-col shadow-xl"
+          >
+          {/* Header */}
+          <div className="px-6 py-4 border-b flex-shrink-0 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Avatar className="size-8">
+                <AvatarFallback className="text-xs">
+                  {patient.name}
+                </AvatarFallback>
+              </Avatar>
+              <div>
+                <div className="font-semibold">{patient.fullName}</div>
+                <div className="text-sm text-muted-foreground">
+                  {patient.id} • {age} years old
+                </div>
               </div>
             </div>
-          </SheetTitle>
-        </SheetHeader>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => onOpenChange(false)}
+              className="h-8 w-8 p-0"
+            >
+              <XIcon className="h-4 w-4" />
+            </Button>
+          </div>
 
         <div className="flex-1 overflow-y-auto">
           <div className="px-6 py-6 space-y-6">
@@ -188,7 +215,9 @@ export function PatientSidebar({ patient, open, onOpenChange }: PatientSidebarPr
           open={treatmentDialogOpen}
           onOpenChange={setTreatmentDialogOpen}
         />
-      </SheetContent>
-    </Sheet>
+          </motion.div>
+        </>
+      )}
+    </AnimatePresence>
   );
 }
