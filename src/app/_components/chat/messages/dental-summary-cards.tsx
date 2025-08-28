@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Markdown } from "@/components/ui/markdown";
-import { User, Activity, CheckCircle, FileText, Stethoscope, Calendar, AlertTriangle, Clock, UserCheck, ScanIcon, ChevronRightIcon } from "lucide-react";
+import { User, Activity, CheckCircle, FileText, Stethoscope, Calendar, AlertTriangle, Clock, UserCheck, ScanIcon, ChevronRightIcon, Quote } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -15,6 +15,8 @@ import { useChatContext } from "@/app/_contexts/chat-context";
 import { ScanPreview } from "../scan-preview";
 import { ScanViewer } from "../scan-viewer";
 import { TreatmentDetailsDialog } from "../treatment-details-dialog";
+import { CitationDialog, type CitationData } from "../citation-dialog";
+import { getRandomCitations } from "../mock/citations";
 import type { MockPatient } from "../mock/patients";
 
 interface DentalSummaryCardsProps {
@@ -266,6 +268,8 @@ export function DentalSummaryCards({ content }: DentalSummaryCardsProps) {
   const [scanViewerOpen, setScanViewerOpen] = useState(false);
   const [selectedTreatment, setSelectedTreatment] = useState<MockPatient["recentTreatments"][0] | null>(null);
   const [treatmentDialogOpen, setTreatmentDialogOpen] = useState(false);
+  const [selectedCitation, setSelectedCitation] = useState<CitationData | null>(null);
+  const [citationDialogOpen, setCitationDialogOpen] = useState(false);
 
   // Dialog handlers
   const handleScanClick = (scan: MockPatient["scans"][0]) => {
@@ -276,6 +280,14 @@ export function DentalSummaryCards({ content }: DentalSummaryCardsProps) {
   const handleTreatmentClick = (treatment: MockPatient["recentTreatments"][0]) => {
     setSelectedTreatment(treatment);
     setTreatmentDialogOpen(true);
+  };
+
+  const handleCitationClick = (sectionType: "clinical_summary" | "recommended_actions" | "visit_reason") => {
+    const citations = getRandomCitations(sectionType, 1);
+    if (citations.length > 0 && citations[0]) {
+      setSelectedCitation(citations[0]);
+      setCitationDialogOpen(true);
+    }
   };
   
   // Calculate total items (title + sections + patient components)
@@ -388,6 +400,15 @@ export function DentalSummaryCards({ content }: DentalSummaryCardsProps) {
             }
             
             // Regular card for other sections
+            const shouldShowCitation = section.title === "Clinical Summary" || 
+                                     section.title === "Recommended Actions" || 
+                                     section.title === "Visit Reason";
+            const getSectionType = (title: string): "clinical_summary" | "recommended_actions" | "visit_reason" => {
+              if (title === "Clinical Summary") return "clinical_summary";
+              if (title === "Recommended Actions") return "recommended_actions";
+              return "visit_reason";
+            };
+
             return (
               <motion.div
                 key={index}
@@ -401,21 +422,34 @@ export function DentalSummaryCards({ content }: DentalSummaryCardsProps) {
               >
                 <Card className="transition-all duration-200 hover:shadow-sm">
                   <div className="px-4 py-2">
-                    <div className="flex items-center gap-2 mb-3">
-                      <motion.div
-                        initial={{ scale: 0, rotate: -180 }}
-                        animate={{ scale: 1, rotate: 0 }}
-                        transition={{ 
-                          delay: 0.1, 
-                          duration: 0.3, 
-                          ease: [0.68, -0.55, 0.265, 1.55] // Bouncy easing for icon
-                        }}
-                      >
-                        <section.icon className="size-4 text-primary" />
-                      </motion.div>
-                      <h3 className="text-sm font-medium text-foreground">
-                        {section.title}
-                      </h3>
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-2">
+                        <motion.div
+                          initial={{ scale: 0, rotate: -180 }}
+                          animate={{ scale: 1, rotate: 0 }}
+                          transition={{ 
+                            delay: 0.1, 
+                            duration: 0.3, 
+                            ease: [0.68, -0.55, 0.265, 1.55] // Bouncy easing for icon
+                          }}
+                        >
+                          <section.icon className="size-4 text-primary" />
+                        </motion.div>
+                        <h3 className="text-sm font-medium text-foreground">
+                          {section.title}
+                        </h3>
+                      </div>
+                      {shouldShowCitation && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleCitationClick(getSectionType(section.title))}
+                          className="h-7 px-2 text-xs text-muted-foreground hover:text-foreground"
+                        >
+                          <Quote className="h-3 w-3 mr-1" />
+                          Cite
+                        </Button>
+                      )}
                     </div>
                     <motion.div 
                       initial={{ opacity: 0 }}
@@ -444,6 +478,12 @@ export function DentalSummaryCards({ content }: DentalSummaryCardsProps) {
         treatment={selectedTreatment}
         open={treatmentDialogOpen}
         onOpenChange={setTreatmentDialogOpen}
+      />
+
+      <CitationDialog
+        citation={selectedCitation}
+        open={citationDialogOpen}
+        onOpenChange={setCitationDialogOpen}
       />
     </div>
   );
